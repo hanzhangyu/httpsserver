@@ -18,7 +18,7 @@ var server;
  * Get port from environment and store in Express.
  * window和Linux不一样统一使用参数的形式附加
  */
-var port = normalizePort(process.argv.slice(2)[0] || '3000');
+var port = normalizePort(process.argv.slice(2)[0] || '3001');
 app.set('port', port);
 
 /**
