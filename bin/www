@@ -7,19 +7,39 @@
 var app = require('../app');
 var debug = require('debug')('httpsserver:server');
 var https = require('https');
+var http = require('http');
+var fs = require('fs');
+var path = require('path');
+var os = require('os');
+var server;
+
 
 /**
  * Get port from environment and store in Express.
+ * window和Linux不一样统一使用参数的形式附加
  */
-
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.argv.slice(2)[0] || '3000');
 app.set('port', port);
 
 /**
- * Create HTTPS server.
+ * 在window开发环境下使用自生成的证书，在Linux服务器上使用nginx配置免费的证书，所以直接开启即可
  */
+if(os.type().toLowerCase()==='linux'){
+    server = http.createServer(app);
+}else{
+    server = (function(){
+        /**
+         * Get ssh from computer
+         * @type {string}
+         */
+        const MY_PATH='C:/Users/Paul';
+        var privateKey  = fs.readFileSync(path.join(MY_PATH,'server-key.pem'), 'utf8');
+        var certificate = fs.readFileSync(path.join(MY_PATH,'server-cert.pem'), 'utf8');
+        var credentials = {key: privateKey, cert: certificate};
 
-var server = https.createServer(app);
+        return https.createServer(credentials,app);
+    }());
+}
 
 /**
  * Listen on provided port, on all network interfaces.
